@@ -9,6 +9,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public enum Command {
     SUBSCRIBE("подписаться"),
+    UNSUBSCRIBE("отписаться"),
     ADD("добавить"),
     FIND("узнать"),
     JOKE("лисы"),

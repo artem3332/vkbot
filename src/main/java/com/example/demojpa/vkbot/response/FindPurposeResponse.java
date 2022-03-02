@@ -21,7 +21,7 @@ public class FindPurposeResponse
 
 
 
-                String stroka="Цель:"+purpose+"  "+"\n"+"Время выполнения: "+time.getHour()+" : "+time.getMinute()+"\n";
+                String stroka="Цель:"+purpose+"  "+"\n"+"Время выполнения: "+time.getDayOfMonth()+"day,"+time.getHour()+" : "+time.getMinute()+"\n";
 
 
 

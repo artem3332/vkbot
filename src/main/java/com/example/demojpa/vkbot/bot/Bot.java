@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import static api.longpoll.bots.model.objects.additional.Button.ButtonColor.*;
@@ -75,13 +76,26 @@ public class Bot extends LongPollBot {
                     try
                     {
 
-                        String[] stringList=message.getText().split(",");
-                        String[] stringtime=stringList[1].split(":");
-                        purposeService.createPurpose(new PurposeRequest(stringList[0],
+
+                        List<String> stringList= Arrays.stream(message.getText().split(",")).toList();
+                        List<String> list= stringList.stream().map(String::trim).toList();
+                        purposeService.createPurpose(new PurposeRequest(list.get(0),
                                         LocalDateTime.now()
-                                                .withHour(Integer.parseInt(stringtime[0]))
-                                                .withMinute(Integer.parseInt(stringtime[1]))),
+                                                .withDayOfMonth(Integer.parseInt(list.get(1)))
+                                                .withHour(Integer.parseInt(list.get(2)))
+                                                .withMinute(Integer.parseInt(list.get(3)))),
                                                     message.getPeerId());
+
+                        new MessagesSend(this)
+                                .setPeerId(message.getPeerId())
+                                .setMessage("Держи:")
+                                .setKeyboard(ButtonBuilder.create()
+                                        .addButton("отписаться", POSITIVE)
+                                        .addButton("узнать", NEGATIVE)
+                                        .addButton("добавить", PRIMARY )
+                                        .addButton("лисы", SECONDARY )
+                                        .Build())
+                                .execute();
 
                         lastCommand = null;
                     }
@@ -90,55 +104,90 @@ public class Bot extends LongPollBot {
                         new MessagesSend(this)
                                 .setPeerId(message.getPeerId())
                                 .setMessage("Введены неккоректные данные")
-                                .execute();
-                    }
-
-
-                }
-
-                switch (command) {
-
-                    case ADD -> {
-                        lastCommand = command;
-                        new MessagesSend(this)
-                                .setPeerId(message.getPeerId())
-                                .setMessage("Введите название цели и время оповещения в формате: Цель,hh:min")
-                                .execute();
-
-
-
-                    }
-
-
-                    case FIND -> {
-                        List<FindPurposeResponse.Purpose> findPurposeResponse = purposeService.getPurpose(message.getPeerId());
-                        new MessagesSend(this)
-                                .setPeerId(message.getPeerId())
-                                .setMessage(findPurposeResponse.toString())
-                                .execute();
-
-                    }
-                    case JOKE -> {
-                        String string="https://randomfox.ca/";
-                        new MessagesSend(this)
-                                .setPeerId(message.getPeerId())
-                                .setMessage(string)
-                                .execute();
-
-                    }
-
-
-                    case UNKNOWN ->
-                        new MessagesSend(this)
-                                .setPeerId(message.getPeerId())
-                                .setMessage("Держи:")
                                 .setKeyboard(ButtonBuilder.create()
+                                        .addButton("отписаться", POSITIVE)
                                         .addButton("узнать", NEGATIVE)
                                         .addButton("добавить", PRIMARY )
                                         .addButton("лисы", SECONDARY )
                                         .Build())
                                 .execute();
 
+                        lastCommand = null;
+                    }
+
+
+                }
+                else {
+
+                    switch (command) {
+
+                        case UNSUBSCRIBE -> {
+                            personService.deletePerson(message.getPeerId());
+                            new MessagesSend(this)
+                                    .setPeerId(message.getPeerId())
+                                    .setMessage("Лови")
+                                    .setKeyboard(ButtonBuilder.create()
+                                            .addButton("подписаться", POSITIVE)
+                                            .addButton("лисы", SECONDARY)
+                                            .Build())
+                                    .execute();
+
+                        }
+
+
+                        case ADD -> {
+                            lastCommand = command;
+                            new MessagesSend(this)
+                                    .setPeerId(message.getPeerId())
+                                    .setMessage("Введите название цели и дату оповещения в формате: Цель,day,hour,minute")
+                                    .execute();
+
+
+                        }
+
+
+                        case FIND -> {
+                            List<FindPurposeResponse.Purpose> findPurposeResponse = purposeService.getPurpose(message.getPeerId());
+                            new MessagesSend(this)
+                                    .setPeerId(message.getPeerId())
+                                    .setMessage(findPurposeResponse.toString())
+                                    .setKeyboard(ButtonBuilder.create()
+                                            .addButton("отписаться", POSITIVE)
+                                            .addButton("узнать", NEGATIVE)
+                                            .addButton("добавить", PRIMARY)
+                                            .addButton("лисы", SECONDARY)
+                                            .Build())
+                                    .execute();
+
+                        }
+                        case JOKE -> {
+                            String string = "https://randomfox.ca/";
+                            new MessagesSend(this)
+                                    .setPeerId(message.getPeerId())
+                                    .setMessage(string)
+                                    .setKeyboard(ButtonBuilder.create()
+                                            .addButton("отписаться", POSITIVE)
+                                            .addButton("узнать", NEGATIVE)
+                                            .addButton("добавить", PRIMARY)
+                                            .addButton("лисы", SECONDARY)
+                                            .Build())
+                                    .execute();
+
+                        }
+
+
+                        case UNKNOWN -> new MessagesSend(this)
+                                .setPeerId(message.getPeerId())
+                                .setMessage("Держи:")
+                                .setKeyboard(ButtonBuilder.create()
+                                        .addButton("отписаться", POSITIVE)
+                                        .addButton("узнать", NEGATIVE)
+                                        .addButton("добавить", PRIMARY)
+                                        .addButton("лисы", SECONDARY)
+                                        .Build())
+                                .execute();
+
+                    }
                 }
             } else {
 
@@ -151,11 +200,25 @@ public class Bot extends LongPollBot {
                                 .setPeerId(message.getPeerId())
                                 .setMessage("Держи:")
                                 .setKeyboard(ButtonBuilder.create()
+                                        .addButton("отписаться", POSITIVE)
                                         .addButton("узнать", NEGATIVE)
                                         .addButton("добавить", PRIMARY )
                                         .addButton("лисы", SECONDARY )
                                         .Build())
                                 .execute();
+                    }
+
+                    case JOKE -> {
+                        String string="https://randomfox.ca/";
+                        new MessagesSend(this)
+                                .setPeerId(message.getPeerId())
+                                .setMessage(string)
+                                .setKeyboard(ButtonBuilder.create()
+                                        .addButton("подписаться",POSITIVE)
+                                        .addButton("лисы", SECONDARY )
+                                        .Build())
+                                .execute();
+
                     }
 
 
@@ -182,6 +245,12 @@ public class Bot extends LongPollBot {
                 new MessagesSend(this)
                         .setPeerId(message.getPeerId())
                         .setMessage(command.getCommand())
+                        .setKeyboard(ButtonBuilder.create()
+                                .addButton("отписаться", POSITIVE)
+                                .addButton("узнать", NEGATIVE)
+                                .addButton("добавить", PRIMARY )
+                                .addButton("лисы", SECONDARY )
+                                .Build())
                         .execute();
 
             } catch (BotsLongPollHttpException | BotsLongPollException ex) {

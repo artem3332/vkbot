@@ -20,6 +20,9 @@ public class PersonService {
     @Value("${dempjpa.service.getPerson.url}")
     private String getPersonUrl;
 
+    @Value("${dempjpa.service.deletePerson.url}")
+    private String deletePersonUrl;
+
 
     public String createPerson(PersonRequest request) {
         RestTemplate restTemplate = new RestTemplate();
@@ -28,6 +31,16 @@ public class PersonService {
 
         HttpEntity<PersonRequest> entity = new HttpEntity<>(request, headers);
         return restTemplate.postForObject(createPersonUrl, entity, String.class);
+    }
+
+    public void deletePerson(Integer vkid)
+    {
+        RestTemplate restTemplate=new RestTemplate();
+        try {
+             restTemplate.delete(deletePersonUrl+vkid);
+        }
+        catch (HttpClientErrorException e){
+        }
     }
 
 
