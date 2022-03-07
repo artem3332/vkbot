@@ -43,6 +43,8 @@ public class Bot extends LongPollBot {
 
     private Command lastCommand;
 
+    private Command lastCommand2;
+
 
 
     public void postPurposeVKId(PurposeRequest purposeRequest, Integer vkid) throws BotsLongPollException, BotsLongPollHttpException {
@@ -68,7 +70,24 @@ public class Bot extends LongPollBot {
 
             if (findPersonResponse != null) {
 
-                if (lastCommand==Command.ADD)
+                if(lastCommand2==Command.DELETE)
+                {
+                    purposeService.deletePurpose(message.getText(),Long.valueOf(message.getPeerId()));
+                    new MessagesSend(this)
+                            .setPeerId(message.getPeerId())
+                            .setMessage("Держи:")
+                            .setKeyboard(ButtonBuilder.create()
+                                    .addButton("отписаться", POSITIVE)
+                                    .addButton("узнать", NEGATIVE)
+                                    .addButton("добавить", PRIMARY )
+                                    .addButton("удалить задачу",NEGATIVE)
+                                    .addButton("лисы", SECONDARY )
+                                    .Build())
+                            .execute();
+
+
+
+                } else if (lastCommand==Command.ADD)
                 {
 
 
@@ -93,6 +112,7 @@ public class Bot extends LongPollBot {
                                         .addButton("отписаться", POSITIVE)
                                         .addButton("узнать", NEGATIVE)
                                         .addButton("добавить", PRIMARY )
+                                        .addButton("удалить задачу",NEGATIVE)
                                         .addButton("лисы", SECONDARY )
                                         .Build())
                                 .execute();
@@ -108,6 +128,7 @@ public class Bot extends LongPollBot {
                                         .addButton("отписаться", POSITIVE)
                                         .addButton("узнать", NEGATIVE)
                                         .addButton("добавить", PRIMARY )
+                                        .addButton("удалить задачу",NEGATIVE)
                                         .addButton("лисы", SECONDARY )
                                         .Build())
                                 .execute();
@@ -145,6 +166,16 @@ public class Bot extends LongPollBot {
 
                         }
 
+                        case DELETE -> {
+                            lastCommand2=Command.DELETE;
+                            new MessagesSend(this)
+                                    .setPeerId(message.getPeerId())
+                                    .setMessage("Введите название цели,которую хотите удалить")
+                                    .execute();
+
+
+                        }
+
 
                         case FIND -> {
                             List<FindPurposeResponse.Purpose> findPurposeResponse = purposeService.getPurpose(message.getPeerId());
@@ -155,6 +186,7 @@ public class Bot extends LongPollBot {
                                             .addButton("отписаться", POSITIVE)
                                             .addButton("узнать", NEGATIVE)
                                             .addButton("добавить", PRIMARY)
+                                            .addButton("удалить задачу",NEGATIVE)
                                             .addButton("лисы", SECONDARY)
                                             .Build())
                                     .execute();
@@ -169,6 +201,7 @@ public class Bot extends LongPollBot {
                                             .addButton("отписаться", POSITIVE)
                                             .addButton("узнать", NEGATIVE)
                                             .addButton("добавить", PRIMARY)
+                                            .addButton("удалить задачу",NEGATIVE)
                                             .addButton("лисы", SECONDARY)
                                             .Build())
                                     .execute();
@@ -183,6 +216,7 @@ public class Bot extends LongPollBot {
                                         .addButton("отписаться", POSITIVE)
                                         .addButton("узнать", NEGATIVE)
                                         .addButton("добавить", PRIMARY)
+                                        .addButton("удалить задачу",NEGATIVE)
                                         .addButton("лисы", SECONDARY)
                                         .Build())
                                 .execute();
@@ -203,6 +237,7 @@ public class Bot extends LongPollBot {
                                         .addButton("отписаться", POSITIVE)
                                         .addButton("узнать", NEGATIVE)
                                         .addButton("добавить", PRIMARY )
+                                        .addButton("удалить задачу",NEGATIVE)
                                         .addButton("лисы", SECONDARY )
                                         .Build())
                                 .execute();
@@ -249,6 +284,7 @@ public class Bot extends LongPollBot {
                                 .addButton("отписаться", POSITIVE)
                                 .addButton("узнать", NEGATIVE)
                                 .addButton("добавить", PRIMARY )
+                                .addButton("удалить задачу",NEGATIVE)
                                 .addButton("лисы", SECONDARY )
                                 .Build())
                         .execute();

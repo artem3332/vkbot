@@ -11,6 +11,7 @@ public enum Command {
     SUBSCRIBE("подписаться"),
     UNSUBSCRIBE("отписаться"),
     ADD("добавить"),
+    DELETE("удалить задачу"),
     FIND("узнать"),
     JOKE("лисы"),
 

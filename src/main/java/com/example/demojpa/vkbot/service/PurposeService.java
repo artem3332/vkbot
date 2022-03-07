@@ -1,13 +1,13 @@
 package com.example.demojpa.vkbot.service;
 
-import api.longpoll.bots.methods.messages.MessagesSend;
-import com.example.demojpa.vkbot.request.PersonRequest;
+import com.example.demojpa.vkbot.request.DeletePurposeRequest;
 import com.example.demojpa.vkbot.request.PurposeRequest;
 import com.example.demojpa.vkbot.response.FindPurposeResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
@@ -24,6 +24,9 @@ public class PurposeService {
     @Value("${dempjpa.service.purpose.url}")
     private String postPurposeUrl;
 
+    @Value("${dempjpa.service.purposedelete.url}")
+    private String deletePurposeUrl;
+
 
     public  String createPurpose(PurposeRequest purposeRequest,Integer vkid)
     {
@@ -36,8 +39,15 @@ public class PurposeService {
 
     }
 
-
-
+    public void deletePurpose(String purpose,Long userId)
+    {
+        RestTemplate restTemplate=new RestTemplate();
+        try {
+            restTemplate.delete(deletePurposeUrl,new DeletePurposeRequest(purpose,userId));
+        }
+        catch (HttpClientErrorException e){
+        }
+    }
 
 
 
