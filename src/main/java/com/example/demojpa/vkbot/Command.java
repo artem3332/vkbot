@@ -15,6 +15,9 @@ public enum Command {
     FIND("узнать"),
     JOKE("лисы"),
 
+    NO("неподтверждаю"),
+    YES("подтверждаю"),
+
 
     SERVER_ERROR("ошибка сервера"),
     UNKNOWN("")

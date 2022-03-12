@@ -7,6 +7,8 @@ import api.longpoll.bots.methods.messages.MessagesSend;
 import api.longpoll.bots.model.events.messages.MessageNewEvent;
 import api.longpoll.bots.model.objects.basic.Message;
 import com.example.demojpa.vkbot.Command;
+import com.example.demojpa.vkbot.Status;
+import com.example.demojpa.vkbot.request.ChangePurposeRequest;
 import com.example.demojpa.vkbot.request.PersonRequest;
 import com.example.demojpa.vkbot.request.PurposeRequest;
 import com.example.demojpa.vkbot.response.FindPersonResponse;
@@ -17,6 +19,7 @@ import com.example.demojpa.vkbot.utils.ButtonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -45,13 +48,27 @@ public class Bot extends LongPollBot {
 
     private Command lastCommand2;
 
+    private String purpose;
 
 
-    public void postPurposeVKId(PurposeRequest purposeRequest, Integer vkid) throws BotsLongPollException, BotsLongPollHttpException {
+
+
+
+    @Cacheable(value = "purposes")
+    public PurposeRequest postPurposeVKId(PurposeRequest purposeRequest, Integer vkid) throws BotsLongPollException, BotsLongPollHttpException {
         new MessagesSend(this)
                 .setPeerId(vkid)
-                .setMessage(purposeRequest.getPurpose())
+                .setMessage(purposeRequest.getPurpose()+","+"Вы подтверждаете получение задачи?")
+                .setKeyboard(ButtonBuilder.create()
+                        .addButton("подтверждаю", POSITIVE)
+                        .addButton("неподтверждаю", NEGATIVE)
+                        .Build())
                 .execute();
+
+
+        this.purpose=purposeRequest.getPurpose();
+
+        return  purposeRequest;
 
     }
 
@@ -85,6 +102,8 @@ public class Bot extends LongPollBot {
                                     .Build())
                             .execute();
 
+                    lastCommand2=null;
+
 
 
                 } else if (lastCommand==Command.ADD)
@@ -99,11 +118,12 @@ public class Bot extends LongPollBot {
                         List<String> stringList= Arrays.stream(message.getText().split(",")).toList();
                         List<String> list= stringList.stream().map(String::trim).toList();
                         purposeService.createPurpose(new PurposeRequest(list.get(0),
+                                        Status.PROCESS,
                                         LocalDateTime.now()
                                                 .withDayOfMonth(Integer.parseInt(list.get(1)))
                                                 .withHour(Integer.parseInt(list.get(2)))
                                                 .withMinute(Integer.parseInt(list.get(3)))),
-                                                    message.getPeerId());
+                                                 message.getPeerId());
 
                         new MessagesSend(this)
                                 .setPeerId(message.getPeerId())
@@ -141,6 +161,44 @@ public class Bot extends LongPollBot {
                 else {
 
                     switch (command) {
+
+
+                        case YES -> {
+
+                            purposeService.changeStatusPurpose(purpose);
+
+                            new MessagesSend(this)
+                                    .setPeerId(message.getPeerId())
+                                    .setMessage("Держи")
+                                    .setKeyboard(ButtonBuilder.create()
+                                            .addButton("отписаться", POSITIVE)
+                                            .addButton("узнать", NEGATIVE)
+                                            .addButton("добавить", PRIMARY )
+                                            .addButton("удалить задачу",NEGATIVE)
+                                            .addButton("лисы", SECONDARY )
+                                            .Build())
+                                    .execute();
+
+                        }
+
+                        case NO -> {
+
+                            purposeService.changeTimePurpose(purpose);
+
+                            new MessagesSend(this)
+                                    .setPeerId(message.getPeerId())
+                                    .setMessage("Мы вас снова уведомим через 10 минут")
+                                    .setKeyboard(ButtonBuilder.create()
+                                            .addButton("отписаться", POSITIVE)
+                                            .addButton("узнать", NEGATIVE)
+                                            .addButton("добавить", PRIMARY )
+                                            .addButton("удалить задачу",NEGATIVE)
+                                            .addButton("лисы", SECONDARY )
+                                            .Build())
+                                    .execute();
+
+                        }
+
 
                         case UNSUBSCRIBE -> {
                             personService.deletePerson(message.getPeerId());

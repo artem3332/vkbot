@@ -1,5 +1,6 @@
 package com.example.demojpa.vkbot.service;
 
+import com.example.demojpa.vkbot.request.ChangePurposeRequest;
 import com.example.demojpa.vkbot.request.DeletePurposeRequest;
 import com.example.demojpa.vkbot.request.PurposeRequest;
 import com.example.demojpa.vkbot.response.FindPurposeResponse;
@@ -24,6 +25,14 @@ public class PurposeService {
     @Value("${dempjpa.service.purpose.url}")
     private String postPurposeUrl;
 
+    @Value("${dempjpa.service.purposestatus.url}")
+    private String putStatusPurposeUrl;
+
+    @Value("${dempjpa.service.purposetime.url}")
+    private String putTimePurposeUrl;
+
+
+
     @Value("${dempjpa.service.purposedelete.url}")
     private String deletePurposeUrl;
 
@@ -41,13 +50,62 @@ public class PurposeService {
 
     public void deletePurpose(String purpose,Long userId)
     {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
         RestTemplate restTemplate=new RestTemplate();
+
+        DeletePurposeRequest deletePurposeRequest=new DeletePurposeRequest(purpose,userId);
+        HttpEntity<DeletePurposeRequest> entity = new HttpEntity<>(deletePurposeRequest, headers);
+
         try {
-            restTemplate.delete(deletePurposeUrl,new DeletePurposeRequest(purpose,userId));
+
+            restTemplate.exchange(deletePurposeUrl,HttpMethod.DELETE, entity, String.class);
+
         }
         catch (HttpClientErrorException e){
         }
     }
+
+    public void changeStatusPurpose(String purpose)
+      {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        RestTemplate restTemplate=new RestTemplate();
+
+        ChangePurposeRequest changePurposeRequest=new ChangePurposeRequest(purpose);
+
+        HttpEntity<ChangePurposeRequest> entity = new HttpEntity<>(changePurposeRequest, headers);
+        try {
+
+
+            restTemplate.exchange(putStatusPurposeUrl,HttpMethod.PUT,entity,String.class);
+
+        }
+        catch (HttpClientErrorException e){
+        }
+
+    }
+
+    public void changeTimePurpose(String purpose)
+    {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        RestTemplate restTemplate=new RestTemplate();
+
+        ChangePurposeRequest changePurposeRequest=new ChangePurposeRequest(purpose);
+
+        HttpEntity<ChangePurposeRequest> entity = new HttpEntity<>(changePurposeRequest, headers);
+
+        try {
+
+            restTemplate.exchange(putTimePurposeUrl,HttpMethod.PUT,entity,String.class);
+
+        }
+        catch (HttpClientErrorException e){
+        }
+
+    }
+
 
 
 

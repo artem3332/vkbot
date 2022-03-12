@@ -1,5 +1,6 @@
 package com.example.demojpa.vkbot.response;
 
+import com.example.demojpa.vkbot.Status;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -12,7 +13,9 @@ public class FindPurposeResponse
 
     @Data
     public static class Purpose{
+
         private String purpose;
+        private Status status;
         private LocalDateTime time;
 
 
@@ -21,7 +24,9 @@ public class FindPurposeResponse
 
 
 
-                String stroka="Цель:"+purpose+"  "+"\n"+"Время выполнения: "+time.getDayOfMonth()+"day,"+time.getHour()+" : "+time.getMinute()+"\n";
+                String stroka="Цель:"+purpose+"  "+"\n"+"Время выполнения: "+
+                        time.getDayOfMonth()+" day,"+time.getHour()+" : "+time.getMinute()+"\n"+
+                        "статус задачи:"+status;
 
 
 
