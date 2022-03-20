@@ -18,12 +18,12 @@ import java.util.List;
 public class PurposeService {
 
 
-    @Value("${dempjpa.service.purposeAll.url}")
-    private String  getPurposeUrl;
-
-
     @Value("${dempjpa.service.purpose.url}")
     private String postPurposeUrl;
+
+    @Value("${dempjpa.service.purposeAll.url}")
+    private String  getPurposeAllUrl;
+
 
     @Value("${dempjpa.service.purposestatus.url}")
     private String putStatusPurposeUrl;
@@ -111,7 +111,7 @@ public class PurposeService {
 
     public List<FindPurposeResponse.Purpose> getPurpose(Integer vkid) {
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<FindPurposeResponse.Purpose>> response = restTemplate.exchange(URI.create(getPurposeUrl + vkid), HttpMethod.GET, null, new ParameterizedTypeReference<List<FindPurposeResponse.Purpose>>() {
+        ResponseEntity<List<FindPurposeResponse.Purpose>> response = restTemplate.exchange(URI.create(getPurposeAllUrl + vkid), HttpMethod.GET, null, new ParameterizedTypeReference<List<FindPurposeResponse.Purpose>>() {
         });
         return response.getBody();
     }

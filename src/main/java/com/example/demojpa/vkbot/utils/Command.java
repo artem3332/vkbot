@@ -1,4 +1,4 @@
-package com.example.demojpa.vkbot;
+package com.example.demojpa.vkbot.utils;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.example.demojpa.vkbot.response;
 
-import com.example.demojpa.vkbot.Status;
+import com.example.demojpa.vkbot.utils.Status;
 import lombok.Data;
 
 import java.time.LocalDateTime;

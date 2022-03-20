@@ -6,8 +6,8 @@ import api.longpoll.bots.exceptions.BotsLongPollHttpException;
 import api.longpoll.bots.methods.messages.MessagesSend;
 import api.longpoll.bots.model.events.messages.MessageNewEvent;
 import api.longpoll.bots.model.objects.basic.Message;
-import com.example.demojpa.vkbot.Command;
-import com.example.demojpa.vkbot.Status;
+import com.example.demojpa.vkbot.utils.Command;
+import com.example.demojpa.vkbot.utils.Status;
 import com.example.demojpa.vkbot.request.PersonRequest;
 import com.example.demojpa.vkbot.request.PurposeRequest;
 import com.example.demojpa.vkbot.response.FindPersonResponse;
@@ -48,8 +48,6 @@ public class Bot extends LongPollBot {
     private Command lastCommand2;
 
     private String purpose;
-
-
 
 
 
