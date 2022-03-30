@@ -6,9 +6,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class PurposeRequest
+public class PostNotificationRequest
 {
-    private final String purpose;
+    private final String notification;
     private final Status status;
     private final LocalDateTime time;
 

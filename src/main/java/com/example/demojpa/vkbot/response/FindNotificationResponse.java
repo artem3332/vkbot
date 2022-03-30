@@ -7,14 +7,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class FindPurposeResponse
+public class FindNotificationResponse
 {
-    private List<Purpose> purposes;
+    private List<Notification> notifications;
 
     @Data
-    public static class Purpose{
+    public static class Notification{
 
-        private String purpose;
+        private String notification;
         private Status status;
         private LocalDateTime time;
 
@@ -24,9 +24,9 @@ public class FindPurposeResponse
 
 
 
-                String stroka="Цель:"+purpose+"  "+"\n"+"Время выполнения: "+
+                String stroka=notification+"  "+"\n"+"Время выполнения: "+
                         time.getDayOfMonth()+" day,"+time.getHour()+" : "+time.getMinute()+"\n"+
-                        "статус задачи:"+status;
+                        "статус задачи:"+status+"\n"+"\n";
 
 
 

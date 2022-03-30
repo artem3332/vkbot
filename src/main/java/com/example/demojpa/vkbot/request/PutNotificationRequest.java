@@ -3,8 +3,8 @@ package com.example.demojpa.vkbot.request;
 import lombok.Data;
 
 @Data
-public class ChangePurposeRequest
+public class PutNotificationRequest
 {
-    private final String purpose;
+    private final String Notification;
 
 }

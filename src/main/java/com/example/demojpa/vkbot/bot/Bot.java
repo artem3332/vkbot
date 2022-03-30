@@ -6,15 +6,15 @@ import api.longpoll.bots.exceptions.BotsLongPollHttpException;
 import api.longpoll.bots.methods.messages.MessagesSend;
 import api.longpoll.bots.model.events.messages.MessageNewEvent;
 import api.longpoll.bots.model.objects.basic.Message;
+import com.example.demojpa.vkbot.request.PostNotificationRequest;
+import com.example.demojpa.vkbot.request.PostPersonRequest;
+import com.example.demojpa.vkbot.response.FindNotificationResponse;
+import com.example.demojpa.vkbot.response.FindPersonResponse;
+import com.example.demojpa.vkbot.service.NotificationService;
+import com.example.demojpa.vkbot.service.PersonService;
+import com.example.demojpa.vkbot.utils.ButtonBuilder;
 import com.example.demojpa.vkbot.utils.Command;
 import com.example.demojpa.vkbot.utils.Status;
-import com.example.demojpa.vkbot.request.PersonRequest;
-import com.example.demojpa.vkbot.request.PurposeRequest;
-import com.example.demojpa.vkbot.response.FindPersonResponse;
-import com.example.demojpa.vkbot.response.FindPurposeResponse;
-import com.example.demojpa.vkbot.service.PersonService;
-import com.example.demojpa.vkbot.service.PurposeService;
-import com.example.demojpa.vkbot.utils.ButtonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,29 +35,23 @@ public class Bot extends LongPollBot {
     @Value("${dempjpa.bot.getGroupId.id}")
     private Integer  id;
 
-
-
     @Autowired
     private PersonService personService;
 
     @Autowired
-    private PurposeService purposeService;
+    private NotificationService notificationService;
 
     private Command lastCommand;
 
     private Command lastCommand2;
 
-    private String purpose;
-
-
-
-
+    private String notification;
 
     @Cacheable(value = "purposes")
-    public PurposeRequest postPurposeVKId(PurposeRequest purposeRequest, Integer vkid) throws BotsLongPollException, BotsLongPollHttpException {
+    public PostNotificationRequest postNotificationVKId(PostNotificationRequest postNotificationRequest, Integer vkid) throws BotsLongPollException, BotsLongPollHttpException {
         new MessagesSend(this)
                 .setPeerId(vkid)
-                .setMessage(purposeRequest.getPurpose()+","+"Вы подтверждаете получение задачи?")
+                .setMessage(postNotificationRequest.getNotification()+"\n"+"Вы подтверждаете получение задачи?")
                 .setKeyboard(ButtonBuilder.create()
                         .addButton("подтверждаю", POSITIVE)
                         .addButton("неподтверждаю", NEGATIVE)
@@ -65,20 +59,16 @@ public class Bot extends LongPollBot {
                 .execute();
 
 
-        this.purpose=purposeRequest.getPurpose();
+        this.notification =postNotificationRequest.getNotification();
 
-        return  purposeRequest;
+        return  postNotificationRequest;
 
     }
-
-
 
     @Override
     public void onMessageNew(MessageNewEvent messageNewEvent) {
         Message message = messageNewEvent.getMessage();
         Command command = getCommand(message);
-
-
 
         try {
             FindPersonResponse findPersonResponse = personService.getPerson(message.getPeerId());
@@ -88,7 +78,7 @@ public class Bot extends LongPollBot {
 
                 if(lastCommand2==Command.DELETE)
                 {
-                    purposeService.deletePurpose(message.getText(),Long.valueOf(message.getPeerId()));
+                    notificationService.deleteNotification(message.getText(),Long.valueOf(message.getPeerId()));
                     new MessagesSend(this)
                             .setPeerId(message.getPeerId())
                             .setMessage("Держи:")
@@ -108,15 +98,11 @@ public class Bot extends LongPollBot {
                 } else if (lastCommand==Command.ADD)
                 {
 
-
-
                     try
                     {
-
-
                         List<String> stringList= Arrays.stream(message.getText().split(",")).toList();
                         List<String> list= stringList.stream().map(String::trim).toList();
-                        purposeService.createPurpose(new PurposeRequest(list.get(0),
+                        notificationService.createNotification(new PostNotificationRequest(list.get(0),
                                         Status.PROCESS,
                                         LocalDateTime.now()
                                                 .withDayOfMonth(Integer.parseInt(list.get(1)))
@@ -155,16 +141,14 @@ public class Bot extends LongPollBot {
                         lastCommand = null;
                     }
 
-
                 }
                 else {
 
                     switch (command) {
 
-
                         case YES -> {
 
-                            purposeService.changeStatusPurpose(purpose);
+                            notificationService.putStatusNotification(notification);
 
                             new MessagesSend(this)
                                     .setPeerId(message.getPeerId())
@@ -177,12 +161,11 @@ public class Bot extends LongPollBot {
                                             .addButton("лисы", SECONDARY )
                                             .Build())
                                     .execute();
-
                         }
 
                         case NO -> {
 
-                            purposeService.changeTimePurpose(purpose);
+                            notificationService.putTimeNotification(notification);
 
                             new MessagesSend(this)
                                     .setPeerId(message.getPeerId())
@@ -198,7 +181,6 @@ public class Bot extends LongPollBot {
 
                         }
 
-
                         case UNSUBSCRIBE -> {
                             personService.deletePerson(message.getPeerId());
                             new MessagesSend(this)
@@ -212,7 +194,6 @@ public class Bot extends LongPollBot {
 
                         }
 
-
                         case ADD -> {
                             lastCommand = command;
                             new MessagesSend(this)
@@ -220,22 +201,20 @@ public class Bot extends LongPollBot {
                                     .setMessage("Введите название цели и дату оповещения в формате: Цель,day,hour,minute")
                                     .execute();
 
-
                         }
 
                         case DELETE -> {
+                            List<FindNotificationResponse.Notification> findPurposeResponse = notificationService.getNotification(message.getPeerId());
                             lastCommand2=Command.DELETE;
                             new MessagesSend(this)
                                     .setPeerId(message.getPeerId())
-                                    .setMessage("Введите название цели,которую хотите удалить")
+                                    .setMessage(findPurposeResponse.toString()+ "\n"+"Введите название цели,которую хотите удалить")
                                     .execute();
-
 
                         }
 
-
                         case FIND -> {
-                            List<FindPurposeResponse.Purpose> findPurposeResponse = purposeService.getPurpose(message.getPeerId());
+                            List<FindNotificationResponse.Notification> findPurposeResponse = notificationService.getNotification(message.getPeerId());
                             new MessagesSend(this)
                                     .setPeerId(message.getPeerId())
                                     .setMessage(findPurposeResponse.toString())
@@ -265,7 +244,6 @@ public class Bot extends LongPollBot {
 
                         }
 
-
                         case UNKNOWN -> new MessagesSend(this)
                                 .setPeerId(message.getPeerId())
                                 .setMessage("Держи:")
@@ -282,11 +260,9 @@ public class Bot extends LongPollBot {
                 }
             } else {
 
-
-
                 switch (command) {
                     case SUBSCRIBE -> {
-                        personService.createPerson(new PersonRequest(message.getPeerId()));
+                        personService.createPerson(new PostPersonRequest(message.getPeerId()));
                         new MessagesSend(this)
                                 .setPeerId(message.getPeerId())
                                 .setMessage("Держи:")
@@ -313,7 +289,6 @@ public class Bot extends LongPollBot {
 
                     }
 
-
                     case UNKNOWN -> new MessagesSend(this)
                             .setPeerId(message.getPeerId())
                             .setMessage("Лови")
@@ -323,13 +298,10 @@ public class Bot extends LongPollBot {
                                     .Build())
                             .execute();
 
-                    //call общий метод
-
                 }
 
 
             }
-            // успешная идентификация
         } catch (Exception e) {
             log.error(e.getMessage(),e);
             command = Command.SERVER_ERROR;
@@ -348,15 +320,11 @@ public class Bot extends LongPollBot {
 
             } catch (BotsLongPollHttpException | BotsLongPollException ex) {
                 e.printStackTrace();
-
-                // ошибка сервера
             }
 
 
         }
     }
-
-
 
 
     private Command getCommand(Message message){

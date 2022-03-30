@@ -4,7 +4,7 @@ package com.example.demojpa.vkbot.request;
 import lombok.Data;
 
 @Data
-public class PersonRequest
+public class PostPersonRequest
 {
     private final Integer vkid;
 }

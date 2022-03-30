@@ -1,6 +1,7 @@
 package com.example.demojpa.vkbot.service;
 
-import com.example.demojpa.vkbot.request.PersonRequest;
+
+import com.example.demojpa.vkbot.request.PostPersonRequest;
 import com.example.demojpa.vkbot.response.FindPersonResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -24,12 +25,12 @@ public class PersonService {
     private String deletePersonUrl;
 
 
-    public String createPerson(PersonRequest request) {
+    public String createPerson(PostPersonRequest postPersonRequest) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<PersonRequest> entity = new HttpEntity<>(request, headers);
+        HttpEntity<PostPersonRequest> entity = new HttpEntity<>(postPersonRequest, headers);
         return restTemplate.postForObject(createPersonUrl, entity, String.class);
     }
 
