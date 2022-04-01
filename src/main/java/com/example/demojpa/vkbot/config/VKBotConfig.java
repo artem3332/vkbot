@@ -17,12 +17,16 @@ import java.util.concurrent.CompletableFuture;
 public class VKBotConfig
 {
     @Bean
-    public Bot bot(){
+    public Bot bot()
+
+
+    {
         return new Bot();
     }
 
     @Bean
-    public BotsLongPoll BotsLongPoll() {
+    public BotsLongPoll BotsLongPoll()
+    {
         BotsLongPoll poll = new BotsLongPoll(bot());
         CompletableFuture.runAsync(() -> {
             try {

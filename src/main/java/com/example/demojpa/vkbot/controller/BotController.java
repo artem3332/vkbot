@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class BotController {
 
     @Autowired
-    Bot bot;
+    private Bot bot;
 
 
     @PostMapping("/{vkid}")
